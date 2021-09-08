@@ -136,79 +136,63 @@ func TestTraceAnalytics(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
-	assert := assert.New(t)
-	mt := mocktracer.Start()
-	defer mt.Stop()
-	var called, traced bool
+	for _, tt := range []struct {
+		err     error
+		code    string
+		handler func(c echo.Context) error
+	}{
+		{
+			err:  errors.New("oh no"),
+			code: "500",
+			handler: func(c echo.Context) error {
+				return errors.New("oh no")
+			},
+		},
+		{
+			err:  echo.NewHTTPError(http.StatusInternalServerError, "my error message"),
+			code: "500",
+			handler: func(c echo.Context) error {
+				return echo.NewHTTPError(http.StatusInternalServerError, "my error message")
+			},
+		},
+		{
+			err:  nil,
+			code: "400",
+			handler: func(c echo.Context) error {
+				return echo.NewHTTPError(http.StatusBadRequest, "my error message")
+			},
+		},
+	} {
+		t.Run("", func(t *testing.T) {
+			assert := assert.New(t)
+			mt := mocktracer.Start()
+			defer mt.Stop()
 
-	// setup
-	router := echo.New()
-	router.Use(Middleware(WithServiceName("foobar")))
-	wantErr := errors.New("oh no")
+			router := echo.New()
+			router.Use(Middleware(WithServiceName("foobar")))
+			router.GET("/err", tt.handler)
+			r := httptest.NewRequest("GET", "/err", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, r)
 
-	// a handler with an error and make the requests
-	router.GET("/err", func(c echo.Context) error {
-		_, traced = tracer.SpanFromContext(c.Request().Context())
-		called = true
-
-		err := wantErr
-		c.Error(err)
-		return err
-	})
-	r := httptest.NewRequest("GET", "/err", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, r)
-
-	// verify the errors and status are correct
-	assert.True(called)
-	assert.True(traced)
-
-	spans := mt.FinishedSpans()
-	assert.Len(spans, 1)
-
-	span := spans[0]
-	assert.Equal("http.request", span.OperationName())
-	assert.Equal("foobar", span.Tag(ext.ServiceName))
-	assert.Equal("500", span.Tag(ext.HTTPCode))
-	assert.Equal(wantErr.Error(), span.Tag(ext.Error).(error).Error())
-}
-
-func TestErrorHandling(t *testing.T) {
-	assert := assert.New(t)
-	mt := mocktracer.Start()
-	defer mt.Stop()
-	var called, traced bool
-
-	// setup
-	router := echo.New()
-	router.HTTPErrorHandler = func(err error, ctx echo.Context) {
-		ctx.Response().WriteHeader(http.StatusInternalServerError)
+			spans := mt.FinishedSpans()
+			assert.Len(spans, 1)
+			span := spans[0]
+			assert.Equal("http.request", span.OperationName())
+			assert.Equal(ext.SpanTypeWeb, span.Tag(ext.SpanType))
+			assert.Equal("foobar", span.Tag(ext.ServiceName))
+			assert.Contains(span.Tag(ext.ResourceName), "/err")
+			assert.Equal(tt.code, span.Tag(ext.HTTPCode))
+			assert.Equal("GET", span.Tag(ext.HTTPMethod))
+			err := span.Tag(ext.Error)
+			if tt.err != nil {
+				assert.NotNil(err)
+				assert.Equal(tt.err.Error(), err.(error).Error())
+			} else {
+				assert.Nil(err)
+			}
+		})
 	}
-	router.Use(Middleware(WithServiceName("foobar")))
-	wantErr := errors.New("oh no")
-
-	// a handler with an error and make the requests
-	router.GET("/err", func(c echo.Context) error {
-		_, traced = tracer.SpanFromContext(c.Request().Context())
-		called = true
-		return wantErr
-	})
-	r := httptest.NewRequest("GET", "/err", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, r)
-
-	// verify the errors and status are correct
-	assert.True(called)
-	assert.True(traced)
-
-	spans := mt.FinishedSpans()
-	assert.Len(spans, 1)
-
-	span := spans[0]
-	assert.Equal("http.request", span.OperationName())
-	assert.Equal("foobar", span.Tag(ext.ServiceName))
-	assert.Equal("500", span.Tag(ext.HTTPCode))
-	assert.Equal(wantErr.Error(), span.Tag(ext.Error).(error).Error())
 }
 
 func TestGetSpanNotInstrumented(t *testing.T) {
