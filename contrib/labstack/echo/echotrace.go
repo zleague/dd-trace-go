@@ -54,12 +54,22 @@ func Middleware(opts ...Option) echo.MiddlewareFunc {
 			// serve the request to the next middleware
 			err := next(c)
 			if err != nil {
-				span.SetTag(ext.Error, err)
-				// invokes the registered HTTP error handler
-				c.Error(err)
+				// It is impossible to determine what the final status code of a request is in echo.
+				// This is the best we can do.
+				switch err := err.(type) {
+				case *echo.HTTPError:
+					if err.Code >= 500 {
+						span.SetTag(ext.Error, err)
+					}
+					span.SetTag(ext.HTTPCode, strconv.Itoa(err.Code))
+				default:
+					// Any non-HTTPError errors appear as 5xx errors.
+					span.SetTag(ext.Error, err)
+					span.SetTag(ext.HTTPCode, "500")
+				}
+			} else {
+				span.SetTag(ext.HTTPCode, "200")
 			}
-
-			span.SetTag(ext.HTTPCode, strconv.Itoa(c.Response().Status))
 			return err
 		}
 	}
