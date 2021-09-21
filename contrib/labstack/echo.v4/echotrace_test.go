@@ -7,6 +7,7 @@ package echo
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -137,9 +138,10 @@ func TestTraceAnalytics(t *testing.T) {
 
 func TestError(t *testing.T) {
 	for _, tt := range []struct {
-		err     error
-		code    string
-		handler func(c echo.Context) error
+		isStatusError func(statusCode int) bool
+		err           error
+		code          string
+		handler       func(c echo.Context) error
 	}{
 		{
 			err:  errors.New("oh no"),
@@ -162,6 +164,49 @@ func TestError(t *testing.T) {
 				return echo.NewHTTPError(http.StatusBadRequest, "my error message")
 			},
 		},
+		{
+			isStatusError: func(statusCode int) bool { return statusCode >= 400 && statusCode < 500 },
+			err:           nil,
+			code:          "500",
+			handler: func(c echo.Context) error {
+				return errors.New("oh no")
+			},
+		},
+		{
+			isStatusError: func(statusCode int) bool { return statusCode >= 400 && statusCode < 500 },
+			err:           nil,
+			code:          "500",
+			handler: func(c echo.Context) error {
+				return echo.NewHTTPError(http.StatusInternalServerError, "my error message")
+			},
+		},
+		{
+			isStatusError: func(statusCode int) bool { return statusCode >= 400 },
+			err:           echo.NewHTTPError(http.StatusBadRequest, "my error message"),
+			code:          "400",
+			handler: func(c echo.Context) error {
+				return echo.NewHTTPError(http.StatusBadRequest, "my error message")
+			},
+		},
+		{
+			isStatusError: func(statusCode int) bool { return statusCode >= 200 },
+			err:           fmt.Errorf("201: Created"),
+			code:          "201",
+			handler: func(c echo.Context) error {
+				c.JSON(201, map[string]string{"status": "ok", "type": "test"})
+				return nil
+			},
+		},
+		{
+			isStatusError: func(statusCode int) bool { return statusCode >= 200 },
+			err:           fmt.Errorf("200: OK"),
+			code:          "200",
+			handler: func(c echo.Context) error {
+				// It's not clear if unset (0) status is possible naturally, but we can simulate that situation.
+				c.Response().Status = 0
+				return nil
+			},
+		},
 	} {
 		t.Run("", func(t *testing.T) {
 			assert := assert.New(t)
@@ -169,7 +214,11 @@ func TestError(t *testing.T) {
 			defer mt.Stop()
 
 			router := echo.New()
-			router.Use(Middleware(WithServiceName("foobar")))
+			opts := []Option{WithServiceName("foobar")}
+			if tt.isStatusError != nil {
+				opts = append(opts, WithStatusCheck(tt.isStatusError))
+			}
+			router.Use(Middleware(opts...))
 			router.GET("/err", tt.handler)
 			r := httptest.NewRequest("GET", "/err", nil)
 			w := httptest.NewRecorder()
@@ -186,7 +235,9 @@ func TestError(t *testing.T) {
 			assert.Equal("GET", span.Tag(ext.HTTPMethod))
 			err := span.Tag(ext.Error)
 			if tt.err != nil {
-				assert.NotNil(err)
+				if !assert.NotNil(err) {
+					return
+				}
 				assert.Equal(tt.err.Error(), err.(error).Error())
 			} else {
 				assert.Nil(err)

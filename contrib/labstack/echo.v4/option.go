@@ -14,6 +14,7 @@ import (
 type config struct {
 	serviceName   string
 	analyticsRate float64
+	isStatusError func(statusCode int) bool
 }
 
 // Option represents an option that can be passed to Middleware.
@@ -25,6 +26,7 @@ func defaults(cfg *config) {
 		cfg.serviceName = svc
 	}
 	cfg.analyticsRate = math.NaN()
+	cfg.isStatusError = isServerError
 }
 
 // WithServiceName sets the given service name for the system.
@@ -55,4 +57,16 @@ func WithAnalyticsRate(rate float64) Option {
 			cfg.analyticsRate = math.NaN()
 		}
 	}
+}
+
+// WithStatusCheck specifies a function fn which reports whether the passed
+// statusCode should be considered an error.
+func WithStatusCheck(fn func(statusCode int) bool) Option {
+	return func(cfg *config) {
+		cfg.isStatusError = fn
+	}
+}
+
+func isServerError(statusCode int) bool {
+	return statusCode >= 500 && statusCode < 600
 }
