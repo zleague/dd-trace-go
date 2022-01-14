@@ -8,6 +8,7 @@ package echo
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
