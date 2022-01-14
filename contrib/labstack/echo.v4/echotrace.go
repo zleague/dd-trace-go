@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"math"
 	"net"
-  "net/http"
+	"net/http"
 	"strconv"
 
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
