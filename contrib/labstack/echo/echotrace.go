@@ -7,7 +7,10 @@
 package echo
 
 import (
+	"fmt"
 	"math"
+	"net/http"
+	"strconv"
 
 	"gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httptrace"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
@@ -55,11 +58,35 @@ func Middleware(opts ...Option) echo.MiddlewareFunc {
 			// serve the request to the next middleware
 			err := next(c)
 			if err != nil {
-				finishOpts = append(finishOpts, tracer.WithError(err))
-				// invokes the registered HTTP error handler
-				c.Error(err)
+				// It is impossible to determine what the final status code of a request is in echo.
+				// This is the best we can do.
+				switch err := err.(type) {
+				case *echo.HTTPError:
+					if cfg.isStatusError(err.Code) {
+						// mark 5xx server error
+						span.SetTag(ext.Error, err)
+					}
+					span.SetTag(ext.HTTPCode, strconv.Itoa(err.Code))
+				default:
+					// Any non-HTTPError errors appear as 5xx errors.
+					if cfg.isStatusError(500) {
+						span.SetTag(ext.Error, err)
+					}
+					span.SetTag(ext.HTTPCode, "500")
+				}
+			} else if status := c.Response().Status; status > 0 {
+				if cfg.isStatusError(status) {
+					// mark 5xx server error
+					span.SetTag(ext.Error, fmt.Errorf("%d: %s", status, http.StatusText(status)))
+				}
+				span.SetTag(ext.HTTPCode, strconv.Itoa(status))
+			} else {
+				if cfg.isStatusError(200) {
+					// mark 5xx server error
+					span.SetTag(ext.Error, fmt.Errorf("%d: %s", 200, http.StatusText(200)))
+				}
+				span.SetTag(ext.HTTPCode, "200")
 			}
-
 			return err
 		}
 	}
