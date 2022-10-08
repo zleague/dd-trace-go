@@ -9,7 +9,7 @@ import (
 	"os"
 	"strconv"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
+	"github.com/zleague/dd-trace-go/internal/log"
 )
 
 // BoolEnv returns the parsed boolean value of an environment variable, or

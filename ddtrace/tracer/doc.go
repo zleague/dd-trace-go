@@ -61,7 +61,7 @@
 // not approach this limit as traces of this size are not useful and impossible to
 // visualize.
 //
-// See the contrib package ( https://pkg.go.dev/gopkg.in/DataDog/dd-trace-go.v1/contrib )
+// See the contrib package ( https://pkg.go.dev/github.com/zleague/dd-trace-go/contrib )
 // for integrating datadog with various libraries, frameworks and clients.
 //
 // All spans created by the tracer contain a context hereby referred to as the span
@@ -95,5 +95,5 @@
 //
 // Some libraries and frameworks are supported out-of-the-box by using one
 // of our integrations. You can see a list of supported integrations here:
-// https://godoc.org/gopkg.in/DataDog/dd-trace-go.v1/contrib
-package tracer // import "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+// https://godoc.org/github.com/zleague/dd-trace-go/contrib
+package tracer // import "github.com/zleague/dd-trace-go/ddtrace/tracer"

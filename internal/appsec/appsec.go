@@ -13,9 +13,9 @@ import (
 
 	rc "github.com/DataDog/datadog-agent/pkg/remoteconfig/state"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/appsec/dyngo"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/remoteconfig"
+	"github.com/zleague/dd-trace-go/internal/appsec/dyngo"
+	"github.com/zleague/dd-trace-go/internal/log"
+	"github.com/zleague/dd-trace-go/internal/remoteconfig"
 )
 
 // Enabled returns true when AppSec is up and running. Meaning that the appsec build tag is enabled, the env var

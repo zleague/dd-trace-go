@@ -50,7 +50,7 @@ import (
 
 	"github.com/google/pprof/profile"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/profiler/internal/extensions"
+	"github.com/zleague/dd-trace-go/profiler/internal/extensions"
 )
 
 func init() {

@@ -10,4 +10,4 @@
 
 package profiler
 
-import _ "gopkg.in/DataDog/dd-trace-go.v1/profiler/internal/cmemprof"
+import _ "github.com/zleague/dd-trace-go/profiler/internal/cmemprof"

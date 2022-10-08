@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql/internal"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/mocktracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/contrib/database/sql/internal"
+	"github.com/zleague/dd-trace-go/ddtrace/mocktracer"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
 )
 
 func TestCommentInjection(t *testing.T) {

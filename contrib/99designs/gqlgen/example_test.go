@@ -13,9 +13,9 @@ import (
 	"github.com/99designs/gqlgen/_examples/todo"
 	"github.com/99designs/gqlgen/graphql/handler"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
 
-	gqlgentrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/99designs/gqlgen"
+	gqlgentrace "github.com/zleague/dd-trace-go/contrib/99designs/gqlgen"
 )
 
 func Example() {
