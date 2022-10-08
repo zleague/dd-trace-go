@@ -50,7 +50,7 @@ func TraceAndServe(h http.Handler, w http.ResponseWriter, r *http.Request, cfg *
 	span, ctx := httptrace.StartRequestSpan(r, opts...)
 	rw, ddrw := wrapResponseWriter(w)
 	defer func() {
-		httptrace.FinishRequestSpan(span, ddrw.status, cfg.FinishOpts...)
+		httptrace.FinishRequestSpan(span, ddrw.status, "", cfg.FinishOpts...)
 	}()
 
 	if appsec.Enabled() {

@@ -48,7 +48,7 @@ func Middleware(opts ...Option) func(next http.Handler) http.Handler {
 				if cfg.isStatusError(status) {
 					opts = []tracer.FinishOption{tracer.WithError(fmt.Errorf("%d: %s", status, http.StatusText(status)))}
 				}
-				httptrace.FinishRequestSpan(span, status, opts...)
+				httptrace.FinishRequestSpan(span, status, "", opts...)
 			}()
 
 			// pass the span through the request context

@@ -43,7 +43,7 @@ func (m *DatadogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 				opts = []tracer.FinishOption{tracer.WithError(fmt.Errorf("%d: %s", status, http.StatusText(status)))}
 			}
 		}
-		httptrace.FinishRequestSpan(span, status, opts...)
+		httptrace.FinishRequestSpan(span, status, "", opts...)
 	}()
 
 	next(w, r.WithContext(ctx))
