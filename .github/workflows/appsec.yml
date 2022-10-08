@@ -53,12 +53,12 @@ jobs:
           env CGO_ENABLED=${{ matrix.cgo_enabled }} DD_APPSEC_ENABLED=${{ matrix.appsec_enabled }}
           ./gotestsum --junitfile $JUNIT_REPORT -- -v ${{ matrix.build_tags != '' && format('-tags="{0}"', matrix.build_tags) || ''}} $TO_TEST || true
 
-      - name: Upload the results to Datadog CI App
-        uses: ./.github/actions/dd-ci-upload
-        with:
-          dd-api-key: ${{ secrets.DD_CI_API_KEY }}
-          files: ${{ env.JUNIT_REPORT }}
-          tags: go:${{ matrix.go-version }},arch:${{ runner.arch }},os:${{ runner.os }}
+#      - name: Upload the results to Datadog CI App
+#        uses: ./.github/actions/dd-ci-upload
+#        with:
+#          dd-api-key: ${{ secrets.DD_CI_API_KEY }}
+#          files: ${{ env.JUNIT_REPORT }}
+#          tags: go:${{ matrix.go-version }},arch:${{ runner.arch }},os:${{ runner.os }}
 
   # Same tests but on the official golang container for linux
   golang-linux-container:
