@@ -12,12 +12,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httptrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/appsec"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
+	"github.com/zleague/dd-trace-go/contrib/internal/httptrace"
+	"github.com/zleague/dd-trace-go/ddtrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/internal/appsec"
+	"github.com/zleague/dd-trace-go/internal/log"
 
 	"github.com/labstack/echo/v4"
 )
@@ -59,9 +59,11 @@ func Middleware(opts ...Option) echo.MiddlewareFunc {
 				finishOpts = []tracer.FinishOption{tracer.NoDebugStack()}
 			}
 
+			finalStatus := c.Response().Status
+			errMsg := ""
 			span, ctx := httptrace.StartRequestSpan(request, opts...)
 			defer func() {
-				httptrace.FinishRequestSpan(span, c.Response().Status, finishOpts...)
+				httptrace.FinishRequestSpan(span, finalStatus, errMsg, finishOpts...)
 			}()
 
 			// pass the span through the request context
@@ -80,27 +82,35 @@ func Middleware(opts ...Option) echo.MiddlewareFunc {
 					if cfg.isStatusError(err.Code) {
 						// mark 5xx server error
 						span.SetTag(ext.Error, err)
+						errMsg = err.Error()
 					}
 					span.SetTag(ext.HTTPCode, strconv.Itoa(err.Code))
+					finalStatus = err.Code
 				default:
 					// Any non-HTTPError errors appear as 5xx errors.
 					if cfg.isStatusError(500) {
 						span.SetTag(ext.Error, err)
+						errMsg = err.Error()
 					}
 					span.SetTag(ext.HTTPCode, "500")
+					finalStatus = 500
 				}
 			} else if status := c.Response().Status; status > 0 {
 				if cfg.isStatusError(status) {
 					// mark 5xx server error
-					span.SetTag(ext.Error, fmt.Errorf("%d: %s", status, http.StatusText(status)))
+					errMsg = fmt.Sprintf("%d: %s", status, http.StatusText(status))
+					span.SetTag(ext.Error, fmt.Errorf(errMsg))
 				}
 				span.SetTag(ext.HTTPCode, strconv.Itoa(status))
+				finalStatus = status
 			} else {
 				if cfg.isStatusError(200) {
 					// mark 5xx server error
-					span.SetTag(ext.Error, fmt.Errorf("%d: %s", 200, http.StatusText(200)))
+					errMsg = fmt.Sprintf("%d: %s", 200, http.StatusText(200))
+					span.SetTag(ext.Error, fmt.Errorf(errMsg))
 				}
 				span.SetTag(ext.HTTPCode, "200")
+				finalStatus = 200
 			}
 			return err
 		}

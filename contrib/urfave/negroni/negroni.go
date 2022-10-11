@@ -13,10 +13,10 @@ import (
 
 	"github.com/urfave/negroni"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httptrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
+	"github.com/zleague/dd-trace-go/contrib/internal/httptrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/internal/log"
 )
 
 // DatadogMiddleware returns middleware that will trace incoming requests.
@@ -43,7 +43,7 @@ func (m *DatadogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 				opts = []tracer.FinishOption{tracer.WithError(fmt.Errorf("%d: %s", status, http.StatusText(status)))}
 			}
 		}
-		httptrace.FinishRequestSpan(span, status, opts...)
+		httptrace.FinishRequestSpan(span, status, "", opts...)
 	}()
 
 	next(w, r.WithContext(ctx))

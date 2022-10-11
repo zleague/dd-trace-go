@@ -12,8 +12,8 @@ import (
 	"sync"
 	"testing"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/profiler/internal/cmemprof"
-	"gopkg.in/DataDog/dd-trace-go.v1/profiler/internal/cmemprof/testallocator"
+	"github.com/zleague/dd-trace-go/profiler/internal/cmemprof"
+	"github.com/zleague/dd-trace-go/profiler/internal/cmemprof/testallocator"
 )
 
 func TestCAllocationProfiler(t *testing.T) {

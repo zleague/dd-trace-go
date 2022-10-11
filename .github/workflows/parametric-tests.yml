@@ -36,7 +36,7 @@ jobs:
       - name: Patch dd-trace-go version
         run: |
           cd system-tests/parametric/apps/golang
-          go get gopkg.in/DataDog/dd-trace-go.v1@$COMMIT_SHA
+          go get github.com/zleague/dd-trace-go@$COMMIT_SHA
 
       - name: Checkout Python
         uses: actions/checkout@v3

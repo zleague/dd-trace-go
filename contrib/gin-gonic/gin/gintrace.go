@@ -4,17 +4,17 @@
 // Copyright 2016 Datadog, Inc.
 
 // Package gin provides functions to trace the gin-gonic/gin package (https://github.com/gin-gonic/gin).
-package gin // import "gopkg.in/DataDog/dd-trace-go.v1/contrib/gin-gonic/gin"
+package gin // import "github.com/zleague/dd-trace-go/contrib/gin-gonic/gin"
 
 import (
 	"fmt"
 	"math"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httptrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/appsec"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
+	"github.com/zleague/dd-trace-go/contrib/internal/httptrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/internal/appsec"
+	"github.com/zleague/dd-trace-go/internal/log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +42,7 @@ func Middleware(service string, opts ...Option) gin.HandlerFunc {
 		opts = append(opts, tracer.Tag(ext.HTTPRoute, c.FullPath()))
 		span, ctx := httptrace.StartRequestSpan(c.Request, opts...)
 		defer func() {
-			httptrace.FinishRequestSpan(span, c.Writer.Status())
+			httptrace.FinishRequestSpan(span, c.Writer.Status(), "")
 		}()
 
 		// pass the span through the request context

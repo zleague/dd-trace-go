@@ -23,9 +23,9 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/ast"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/ddtrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
 )
 
 const (

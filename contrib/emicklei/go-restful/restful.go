@@ -9,11 +9,11 @@ package restful
 import (
 	"math"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httptrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
+	"github.com/zleague/dd-trace-go/contrib/internal/httptrace"
+	"github.com/zleague/dd-trace-go/ddtrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/internal/log"
 
 	"github.com/emicklei/go-restful"
 )
@@ -33,7 +33,7 @@ func FilterFunc(configOpts ...Option) restful.FilterFunction {
 		}
 		span, ctx := httptrace.StartRequestSpan(req.Request, spanOpts...)
 		defer func() {
-			httptrace.FinishRequestSpan(span, resp.StatusCode(), tracer.WithError(resp.Error()))
+			httptrace.FinishRequestSpan(span, resp.StatusCode(), "", tracer.WithError(resp.Error()))
 		}()
 
 		// pass the span through the request context
@@ -46,7 +46,7 @@ func FilterFunc(configOpts ...Option) restful.FilterFunction {
 func Filter(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
 	span, ctx := httptrace.StartRequestSpan(req.Request, tracer.ResourceName(req.SelectedRoutePath()))
 	defer func() {
-		httptrace.FinishRequestSpan(span, resp.StatusCode(), tracer.WithError(resp.Error()))
+		httptrace.FinishRequestSpan(span, resp.StatusCode(), "", tracer.WithError(resp.Error()))
 	}()
 
 	// pass the span through the request context

@@ -10,7 +10,7 @@ import (
 	"os"
 	"testing"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/globalconfig"
+	"github.com/zleague/dd-trace-go/internal/globalconfig"
 
 	"github.com/stretchr/testify/assert"
 )

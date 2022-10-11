@@ -12,9 +12,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/mocktracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/mocktracer"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -166,7 +166,7 @@ func TestError(t *testing.T) {
 		},
 		{
 			isStatusError: func(statusCode int) bool { return statusCode >= 400 && statusCode < 500 },
-			err:           nil,
+			err:           errors.New("500: Internal Server Error"),
 			code:          "500",
 			handler: func(c echo.Context) error {
 				return errors.New("oh no")
@@ -174,7 +174,7 @@ func TestError(t *testing.T) {
 		},
 		{
 			isStatusError: func(statusCode int) bool { return statusCode >= 400 && statusCode < 500 },
-			err:           nil,
+			err:           errors.New("500: Internal Server Error"),
 			code:          "500",
 			handler: func(c echo.Context) error {
 				return echo.NewHTTPError(http.StatusInternalServerError, "my error message")

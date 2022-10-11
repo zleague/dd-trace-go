@@ -4,18 +4,18 @@
 // Copyright 2016 Datadog, Inc.
 
 // Package chi provides tracing functions for tracing the go-chi/chi package (https://github.com/go-chi/chi).
-package chi // import "gopkg.in/DataDog/dd-trace-go.v1/contrib/go-chi/chi"
+package chi // import "github.com/zleague/dd-trace-go/contrib/go-chi/chi"
 
 import (
 	"fmt"
 	"math"
 	"net/http"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httptrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/appsec"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
+	"github.com/zleague/dd-trace-go/contrib/internal/httptrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/internal/appsec"
+	"github.com/zleague/dd-trace-go/internal/log"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -48,7 +48,7 @@ func Middleware(opts ...Option) func(next http.Handler) http.Handler {
 				if cfg.isStatusError(status) {
 					opts = []tracer.FinishOption{tracer.WithError(fmt.Errorf("%d: %s", status, http.StatusText(status)))}
 				}
-				httptrace.FinishRequestSpan(span, status, opts...)
+				httptrace.FinishRequestSpan(span, status, "", opts...)
 			}()
 
 			// pass the span through the request context

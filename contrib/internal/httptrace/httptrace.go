@@ -15,9 +15,9 @@ import (
 	"strconv"
 	"strings"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"github.com/zleague/dd-trace-go/ddtrace"
+	"github.com/zleague/dd-trace-go/ddtrace/ext"
+	"github.com/zleague/dd-trace-go/ddtrace/tracer"
 )
 
 var (
@@ -70,7 +70,7 @@ func StartRequestSpan(r *http.Request, opts ...ddtrace.StartSpanOption) (tracer.
 
 // FinishRequestSpan finishes the given HTTP request span and sets the expected response-related tags such as the status
 // code. Any further span finish option can be added with opts.
-func FinishRequestSpan(s tracer.Span, status int, opts ...tracer.FinishOption) {
+func FinishRequestSpan(s tracer.Span, status int, errMsg string, opts ...tracer.FinishOption) {
 	var statusStr string
 	if status == 0 {
 		statusStr = "200"
@@ -78,8 +78,11 @@ func FinishRequestSpan(s tracer.Span, status int, opts ...tracer.FinishOption) {
 		statusStr = strconv.Itoa(status)
 	}
 	s.SetTag(ext.HTTPCode, statusStr)
-	if status >= 500 && status < 600 {
-		s.SetTag(ext.Error, fmt.Errorf("%s: %s", statusStr, http.StatusText(status)))
+
+	if errMsg == "" {
+		if status >= 500 && status < 600 {
+			s.SetTag(ext.Error, fmt.Errorf("%s: %s", statusStr, http.StatusText(status)))
+		}
 	}
 	s.Finish(opts...)
 }

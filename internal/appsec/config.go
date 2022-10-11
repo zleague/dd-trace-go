@@ -14,8 +14,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/log"
-	"gopkg.in/DataDog/dd-trace-go.v1/internal/remoteconfig"
+	"github.com/zleague/dd-trace-go/internal/log"
+	"github.com/zleague/dd-trace-go/internal/remoteconfig"
 )
 
 const (
