@@ -4,7 +4,7 @@ This document outlines migrating from an older version of the Datadog tracer (0.
 
 Datadog's v1 version of the Go tracer provides not only an overhauled core that comes with huge performance improvements, but also the promise of a new and stable API to be relied on. It is the result of continuous feedback from customers, the community, as well as our extensive internal usage.
 
-As is common and recommended in the Go community, the best way to approach migrating to this new API is by using the [gradual code repair](https://talks.golang.org/2016/refactor.article) method. We have done the same internally and it has worked just great! For this exact reason we have provided a new, [semver](https://semver.org/) friendly import path to help with using both tracers in parallel, without conflict, for the duration of the migration. This new path is `gopkg.in/DataDog/dd-trace-go.v1`.
+As is common and recommended in the Go community, the best way to approach migrating to this new API is by using the [gradual code repair](https://talks.golang.org/2016/refactor.article) method. We have done the same internally and it has worked just great! For this exact reason we have provided a new, [semver](https://semver.org/) friendly import path to help with using both tracers in parallel, without conflict, for the duration of the migration. This new path is `github.com/zleague/dd-trace-go`.
 
 Our [godoc page](https://godoc.org/github.com/zleague/dd-trace-go/ddtrace) should deem helpful during this process. We also have the [official documentation](https://docs.datadoghq.com/tracing/setup/go/), which contains a couple of examples.
 
